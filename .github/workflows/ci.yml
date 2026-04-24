@@ -4,16 +4,17 @@ on:
   pull_request:
     branches:
       - main
+      - master
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:14
         env:
-          # JANGAN gunakan secrets di sini, pakai nilai hardcoded saja
+          # Gunakan nilai hardcoded untuk DB sementara di CI
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: supersecretpassword
           POSTGRES_DB: forumapi_test
@@ -30,10 +31,10 @@ jobs:
         node-version: [20.x]
 
     steps:
-      - uses: actions/checkout@v4 # Update ke v4 lebih stabil
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4 # Update ke v4
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -44,17 +45,24 @@ jobs:
           npm run test
         env:
           CI: true
-          # Gunakan DATABASE_URL agar node-pg-migrate tidak bingung
+          # Ini kunci perbaikannya: Pastikan string password terbaca dengan benar
           DATABASE_URL: postgres://postgres:supersecretpassword@localhost:5432/forumapi_test
           
-          # Variabel satuan untuk aplikasi kamu
+          # Variabel satuan untuk aplikasi (Sesuai dengan yang dipanggil di Infrastructure)
           PGHOST_TEST: localhost
           PGUSER_TEST: postgres
           PGDATABASE_TEST: forumapi_test
           PGPASSWORD_TEST: supersecretpassword
           PGPORT_TEST: 5432
           
-          # Gunakan Secrets HANYA untuk key keamanan, bukan untuk DB testing
+          # Variabel standar (opsional untuk jaga-jaga)
+          PGHOST: localhost
+          PGUSER: postgres
+          PGDATABASE: forumapi_test
+          PGPASSWORD: supersecretpassword
+          PGPORT: 5432
+          
+          # Gunakan Secrets untuk Key Keamanan
           ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
           REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
-          ACCESS_TOKEN_AGE: ${{ secrets.ACCESS_TOKEN_AGE }}
+          ACCESS_TOKEN_AGE: 1800
