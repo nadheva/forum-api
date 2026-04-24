@@ -39,24 +39,28 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+
+      # Menjalankan migrasi menggunakan format DATABASE_URL
       - name: Run Database Migrations
         run: npm run migrate up
         env:
-          PGHOST_TEST: localhost
-          PGUSER_TEST: postgres
-          PGPASSWORD_TEST: supersecretpassword
-          PGDATABASE_TEST: forumapi_test
-          PGPORT_TEST: 5432
+          DATABASE_URL: postgres://postgres:supersecretpassword@localhost:5432/forumapi_test
 
+      # Menjalankan seluruh pengujian
       - name: Run Tests
         run: npm run test
         env:
+          # Variabel DB Test dalam format URL (untuk migrator/beberapa test)
+          DATABASE_URL: postgres://postgres:supersecretpassword@localhost:5432/forumapi_test
+          
+          # Variabel DB Test dalam format satuan (untuk aplikasi/Boilerplate Dicoding)
           PGHOST_TEST: localhost
           PGUSER_TEST: postgres
           PGPASSWORD_TEST: supersecretpassword
           PGDATABASE_TEST: forumapi_test
           PGPORT_TEST: 5432
           
+          # Variabel Security
           ACCESS_TOKEN_KEY: supersecretaccesstokenkey
           REFRESH_TOKEN_KEY: supersecretrefreshtokenkey
           ACCCESS_TOKEN_AGE: 1800
