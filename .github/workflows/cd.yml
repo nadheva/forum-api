@@ -1,0 +1,27 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main # Skrip ini jalan saat kamu push atau merge ke main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd ~/forum-api
+          git pull origin main
+          npm install
+          npm run migrate up
+          pm2 restart forum-api || pm2 start npm --name "forum-api" -- start

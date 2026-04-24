@@ -1,0 +1,68 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: supersecretpassword
+          POSTGRES_DB: forumapi_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install, Migrate and Test
+        run: |
+          npm install
+          npm run migrate up
+          npm run test
+        env:
+          CI: true
+          # Koneksi Database URL untuk migrator
+          DATABASE_URL: postgres://postgres:supersecretpassword@localhost:5432/forumapi_test
+          
+          # Variabel satuan untuk aplikasi kamu (menggunakan nilai hardcoded agar aman)
+          PGHOST_TEST: localhost
+          PGUSER_TEST: postgres
+          PGDATABASE_TEST: forumapi_test
+          PGPASSWORD_TEST: supersecretpassword
+          PGPORT_TEST: 5432
+
+          # Tambahkan variabel standar (non-test) untuk jaga-jaga
+          PGHOST: localhost
+          PGUSER: postgres
+          PGDATABASE: forumapi_test
+          PGPASSWORD: supersecretpassword
+          PGPORT: 5432
+
+          # Gunakan Secrets untuk keamanan (Pastikan sudah diisi di GitHub Settings)
+          ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY || 'secret_access_token' }}
+          REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY || 'secret_refresh_token' }}
+          ACCESS_TOKEN_AGE: ${{ secrets.ACCESS_TOKEN_AGE || '1800' }}
