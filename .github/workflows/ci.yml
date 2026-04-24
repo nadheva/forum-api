@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - main
-      - master
 
 jobs:
   test:
@@ -40,16 +39,18 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+      - name: Run Database Migrations
+        run: npm run migrate up
+        env:
+          PGHOST_TEST: localhost
+          PGUSER_TEST: postgres
+          PGPASSWORD_TEST: supersecretpassword
+          PGDATABASE_TEST: forumapi_test
+          PGPORT_TEST: 5432
 
       - name: Run Tests
         run: npm run test
         env:
-          PGHOST: localhost
-          PGUSER: postgres
-          PGPASSWORD: supersecretpassword
-          PGDATABASE: forumapi_test
-          PGPORT: 5432
-          
           PGHOST_TEST: localhost
           PGUSER_TEST: postgres
           PGPASSWORD_TEST: supersecretpassword
