@@ -14,7 +14,7 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: developer
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: supersecretpassword
           POSTGRES_DB: forumapi_test
         ports:
@@ -46,9 +46,15 @@ jobs:
         env:
           PGHOST: localhost
           PGUSER: postgres
-          PGPASSWORD: postgres
-          PGDATABASE: forum_api
+          PGPASSWORD: supersecretpassword
+          PGDATABASE: forumapi_test
           PGPORT: 5432
+          
+          PGHOST_TEST: localhost
+          PGUSER_TEST: postgres
+          PGPASSWORD_TEST: supersecretpassword
+          PGDATABASE_TEST: forumapi_test
+          PGPORT_TEST: 5432
           
           ACCESS_TOKEN_KEY: supersecretaccesstokenkey
           REFRESH_TOKEN_KEY: supersecretrefreshtokenkey
